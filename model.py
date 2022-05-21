@@ -16,12 +16,14 @@ from keras.losses import BinaryCrossentropy
 
 def model_gan(train_type, lr, latent, model_name):
     discriminator = Sequential([
-        Input(shape=(192, 256, 3)),
+        Input(shape=(384, 512, 3)),
         Conv2D(64, kernel_size=4, strides=2, padding='same'),
         LeakyReLU(alpha=0.2),
         Conv2D(128, kernel_size=4, strides=2, padding="same"),
         LeakyReLU(alpha=0.2),
         Conv2D(128, kernel_size=4, strides=2, padding="same"),
+        LeakyReLU(alpha=0.2),
+        Conv2D(128, kernel_size=4, strides=2, padding='same'),
         LeakyReLU(alpha=0.2),
         Flatten(),
         Dropout(0.2),
@@ -48,6 +50,10 @@ def model_gan(train_type, lr, latent, model_name):
             Conv2DTranspose(512, kernel_size=4, strides=2, padding="same"),  # 256, 192
             BatchNormalization(),
             LeakyReLU(alpha=0.2),
+            Conv2DTranspose(1024, kernel_size=4, strides=2, padding="same"),  # 512, 384
+            BatchNormalization(),
+            LeakyReLU(alpha=0.2),
+
 
             Conv2D(3, kernel_size=5, padding="same", activation="tanh"),
         ],

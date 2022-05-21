@@ -57,7 +57,7 @@ def main(raw_dir, label):
     os.mkdir('raw_data/data/alive')
     os.mkdir('raw_data/data/dead')
 
-    tasks = [blur, rb_shift, rotation, reverse]
+    tasks = [blur, rotation, rotation, reverse]
 
     for sample in df.values:
         robust = sample[1]
@@ -65,7 +65,7 @@ def main(raw_dir, label):
 
         img_type = 'alive' if robust else 'dead'
         img = Image.open(file)
-        img = img.resize((256, 192), Image.ANTIALIAS)  # 4:3
+        img = img.resize((512, 384), Image.ANTIALIAS)  # 4:3
         rgb_img = img.convert('RGB')
         imgs = [task(rgb_img) for task in tasks] + [rgb_img]    # Data Augmentation
         for k, img in enumerate(imgs):

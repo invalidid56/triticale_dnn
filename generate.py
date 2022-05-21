@@ -19,14 +19,14 @@ def main(model_name, img_num, params='params.txt'):
     para = []
     if not os.path.exists(params):
         params_f = open(params, 'w')
-        params_f.write("EPOCH=512")
-        params_f.write("LEARNING_RATE=0.00001")
-        params_f.write("BATCH=4")
-        params_f.write("LATENT=128")
+        params_f.write("EPOCH=1\n")
+        params_f.write("LEARNING_RATE=0.00001\n")
+        params_f.write("BATCH=32\n")
+        params_f.write("LATENT=128\n")
         params_f.close()
 
     for i, line in enumerate(open(params, 'r')):
-        if not i == 0:
+        if not i == 1:
             para.append(int(line.strip().split('=')[1]))
         else:
             para.append(float(line.strip().split('=')[1]))

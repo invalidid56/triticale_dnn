@@ -7,6 +7,7 @@ import shutil
 import sys
 import model
 from keras.models import save_model
+from keras.callbacks import TensorBoard
 from tensorflow import keras
 
 
@@ -28,14 +29,14 @@ def main(data_dir, model_name, params='param.txt'):
     para = []
     if not os.path.exists(params):
         params_f = open(params, 'w')
-        params_f.write("EPOCH=512")
-        params_f.write("LEARNING_RATE=0.00001")
-        params_f.write("BATCH=4")
-        params_f.write("LATENT=128")
+        params_f.write("EPOCH=1\n")
+        params_f.write("LEARNING_RATE=0.00001\n")
+        params_f.write("BATCH=32\n")
+        params_f.write("LATENT=128\n")
         params_f.close()
 
     for i, line in enumerate(open(params, 'r')):
-        if not i == 0:
+        if not i == 1:
             para.append(int(line.strip().split('=')[1]))
         else:
             para.append(float(line.strip().split('=')[1]))
@@ -51,7 +52,7 @@ def main(data_dir, model_name, params='param.txt'):
         # Load Dataset
         #
         dataset = keras.preprocessing.image_dataset_from_directory(
-            os.path.join(data_dir, t), label_mode=None, batch_size=BATCH, image_size=(192, 256)
+            os.path.join(data_dir, t), label_mode=None, batch_size=BATCH, image_size=(384, 512)
         )
         dataset = dataset.map(lambda x: x/255.0)
 
@@ -62,7 +63,7 @@ def main(data_dir, model_name, params='param.txt'):
                                             latent=LATENT,
                                             lr=LEARNING_RATE,
                                             model_name=model_name)
-
+        CB = TensorBoard(log_dir=os.path.join(model_name, t, 'logs'))
         gan.fit(
             dataset, epochs=EPOCH, callbacks=[gan_callback]
         )
