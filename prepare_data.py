@@ -1,9 +1,36 @@
 # Classify raw images by label
+import random
 import shutil
 
 import pandas as pd
 import os
-from PIL import Image
+from PIL import Image, ImageFilter
+from random import randint
+
+
+def blur(img: Image):
+    return img.filter(ImageFilter.BLUR)
+
+
+def rb_shift(img):  # Green is and Crucial Factor
+    width, height = img.size
+    newimg = Image.new("RGB", (width, height), (255, 255, 255))
+    newpxl = newimg.load()
+    pxl = img.load()
+
+    for h in range(height):
+        for w in range(width):
+            r, g, b = pxl[w, h]
+            newpxl[w, h] = (255-r, g, 255-b)
+    return newimg
+
+
+def rotation(img):
+    return img.rotate(randint(0, 360))
+
+
+def reverse(img):
+    return img.rotate(180)
 
 
 def main(raw_dir, label):
@@ -30,20 +57,19 @@ def main(raw_dir, label):
     os.mkdir('raw_data/data/alive')
     os.mkdir('raw_data/data/dead')
 
+    tasks = [blur, rb_shift, rotation, reverse]
+
     for sample in df.values:
         robust = sample[1]
         file = sample[2]
-        if robust:
-            img = Image.open(file)
-            img = img.resize((256, 192), Image.ANTIALIAS)  # 4:3
-            rgb_img = img.convert('RGB')
-            rgb_img.save(os.path.join('raw_data/data/alive', sample[0]+'.png'))
 
-        else:
-            img = Image.open(file)
-            img = img.resize((256, 192), Image.ANTIALIAS)
-            rgb_img = img.convert('RGB')
-            rgb_img.save(os.path.join('raw_data/data/dead', sample[0] + '.png'))
+        img_type = 'alive' if robust else 'dead'
+        img = Image.open(file)
+        img = img.resize((256, 192), Image.ANTIALIAS)  # 4:3
+        rgb_img = img.convert('RGB')
+        imgs = [task(rgb_img) for task in tasks] + [rgb_img]    # Data Augmentation
+        for k, img in enumerate(imgs):
+            img.save(os.path.join('raw_data/data', img_type, sample[0] + str(k) + '.png'))
 
 
 if __name__ == '__main__':
