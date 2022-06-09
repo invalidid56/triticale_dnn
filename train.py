@@ -20,8 +20,11 @@ def main(data_dir, model_name, params='param.txt'):
         shutil.rmtree(model_name)
 
     os.mkdir(model_name)
+    os.mkdir(os.path.join(model_name, 'callbacks'))
     os.mkdir(os.path.join(model_name, 'alive'))
+    os.mkdir(os.path.join(model_name, 'callbacks', 'alive'))
     os.mkdir(os.path.join(model_name, 'dead'))
+    os.mkdir(os.path.join(model_name, 'callbacks', 'dead'))
 
     #
     # Read Hyperparams
@@ -29,7 +32,7 @@ def main(data_dir, model_name, params='param.txt'):
     para = []
     if not os.path.exists(params):
         params_f = open(params, 'w')
-        params_f.write("EPOCH=1\n")
+        params_f.write("EPOCH=500\n")
         params_f.write("LEARNING_RATE=0.00001\n")
         params_f.write("BATCH=32\n")
         params_f.write("LATENT=128\n")
@@ -52,7 +55,7 @@ def main(data_dir, model_name, params='param.txt'):
         # Load Dataset
         #
         dataset = keras.preprocessing.image_dataset_from_directory(
-            os.path.join(data_dir, t), label_mode=None, batch_size=BATCH, image_size=(384, 512)
+            os.path.join(data_dir, t), label_mode=None, batch_size=BATCH, image_size=(192, 256)
         )
         dataset = dataset.map(lambda x: x/255.0)
 
@@ -64,8 +67,10 @@ def main(data_dir, model_name, params='param.txt'):
                                             lr=LEARNING_RATE,
                                             model_name=model_name)
         CB = TensorBoard(log_dir=os.path.join(model_name, t, 'logs'))
+        ES = keras.callbacks.EarlyStopping(monitor='g_loss', patience=10)
+
         gan.fit(
-            dataset, epochs=EPOCH, callbacks=[gan_callback]
+            dataset, epochs=EPOCH, callbacks=[gan_callback, ES, CB]
         )
 
         #
@@ -87,4 +92,4 @@ def main(data_dir, model_name, params='param.txt'):
 
 if __name__ == '__main__':
     main(data_dir=sys.argv[1],
-         model_name=sys.argv[2])
+        model_name=sys.argv[2])

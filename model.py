@@ -6,7 +6,8 @@
 import tensorflow as tf
 import keras
 import os
-from keras.models import Sequential, Input
+from keras.models import Sequential
+from keras import Input
 from keras.layers import Conv2D, Conv2DTranspose, LeakyReLU, Flatten, Dropout, Dense, Reshape, BatchNormalization
 from keras.metrics import Mean
 from keras.callbacks import Callback
@@ -45,7 +46,7 @@ def model_gan(train_type, lr, latent, model_name):
             Conv2DTranspose(256, kernel_size=4, strides=2, padding="same"),  # 128, 96
             BatchNormalization(),
             LeakyReLU(alpha=0.2),
-            Conv2DTranspose(512, kernel_size=4, strides=2, padding="same"),  # 256, 192
+            Conv2DTranspose(256, kernel_size=4, strides=2, padding="same"),  # 256, 192
             BatchNormalization(),
             LeakyReLU(alpha=0.2),
             Conv2D(3, kernel_size=5, padding="same", activation="tanh"),
