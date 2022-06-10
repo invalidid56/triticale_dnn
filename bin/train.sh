@@ -3,6 +3,6 @@
 BASEDIR=$(pwd)
 cd ..
 
-python train.py data $1
+python train.py raw_data/data $1
 
 cd $BASEDIR
