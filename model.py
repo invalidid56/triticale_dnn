@@ -8,7 +8,8 @@ import keras
 import os
 from keras.models import Sequential
 from keras import Input
-from keras.layers import Conv2D, Conv2DTranspose, LeakyReLU, Flatten, Dropout, Dense, Reshape, BatchNormalization
+from keras.layers import Conv2D, Conv2DTranspose, LeakyReLU, Flatten,\
+    Dropout, Dense, Reshape, BatchNormalization, MaxPooling2D, Rescaling
 from keras.metrics import Mean
 from keras.callbacks import Callback
 from keras.optimizers import adam_v2
@@ -149,3 +150,25 @@ def model_gan(train_type, lr, latent, model_name):
     )
 
     return gan, GANMonitor(num_img=4, latent_dim=latent_dim)
+
+
+def model_cnn(model_name, lr):
+    model = Sequential([
+        Rescaling(1. / 255, input_shape=(1024, 1024, 3)),
+        Conv2D(24, 3, padding='same', activation='relu'),
+        MaxPooling2D(),
+        Dropout(0.2),
+        Conv2D(32, 3, padding='same', activation='relu'),
+        MaxPooling2D(),
+        Conv2D(64, 3, padding='same', activation='relu'),
+        MaxPooling2D(),
+        Flatten(),
+        Dropout(0.2),
+        Dense(128, activation='relu'),
+        Dense(2, activation='softmax')
+    ], name=model_name)
+    model.compile(optimizer=adam_v2.Adam(learning_rate=lr),
+                  loss='mse',
+                  metrics=['accuracy'])
+    model.summary()
+    return model

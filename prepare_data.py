@@ -51,13 +51,34 @@ def main(raw_dir, label):
     df.robust = df.robust.map(dead_or_alive)
     df = df.dropna()
 
+    '''
     if os.path.exists('raw_data/data'):
         shutil.rmtree('raw_data/data')
     os.mkdir('raw_data/data')
     os.mkdir('raw_data/data/alive')
     os.mkdir('raw_data/data/dead')
+    '''
+
+    if os.path.exists('raw_data/hq_data'):
+        shutil.rmtree('raw_data/hq_data')
+    os.mkdir('raw_data/hq_data')
+    os.mkdir('raw_data/hq_data/alive')
+    os.mkdir('raw_data/hq_data/dead')
 
     tasks = [blur, rotation, rotation, reverse]
+
+    def expand2square(pil_img, background_color):
+        width, height = pil_img.size
+        if width == height:
+            return pil_img
+        elif width > height:
+            result = Image.new(pil_img.mode, (width, width), background_color)
+            result.paste(pil_img, (0, (width - height) // 2))
+            return result
+        else:
+            result = Image.new(pil_img.mode, (height, height), background_color)
+            result.paste(pil_img, ((height - width) // 2, 0))
+            return result
 
     for sample in df.values:
         robust = sample[1]
@@ -65,11 +86,13 @@ def main(raw_dir, label):
 
         img_type = 'alive' if robust else 'dead'
         img = Image.open(file)
-        img = img.resize((256, 192), Image.ANTIALIAS)  # 4:3
+        img = expand2square(img, (0, 0, 0))
+        img = img.resize((1024, 1024), Image.ANTIALIAS)  # 4:3
         rgb_img = img.convert('RGB')
         imgs = [task(rgb_img) for task in tasks] + [rgb_img]    # Data Augmentation
+
         for k, img in enumerate(imgs):
-            img.save(os.path.join('raw_data/data', img_type, sample[0] + str(k) + '.png'))
+            img.save(os.path.join('raw_data/hq_data', img_type, sample[0] + str(k) + '.png'))
 
 
 if __name__ == '__main__':
