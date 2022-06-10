@@ -37,16 +37,20 @@ def model_gan(train_type, lr, latent, model_name):
         [
             Input(shape=(latent_dim,)),
             Dense(32 * 24 * 128),
+            Dropout(0.2),
             BatchNormalization(),
             LeakyReLU(),
             Reshape((24, 32, 128)),
             Conv2DTranspose(128, kernel_size=4, strides=2, padding="same"),  # 64, 48
+            Dropout(0.2),
             BatchNormalization(),
             LeakyReLU(alpha=0.2),
             Conv2DTranspose(256, kernel_size=4, strides=2, padding="same"),  # 128, 96
+            Dropout(0.2),
             BatchNormalization(),
             LeakyReLU(alpha=0.2),
             Conv2DTranspose(256, kernel_size=4, strides=2, padding="same"),  # 256, 192
+            Dropout(0.2),
             BatchNormalization(),
             LeakyReLU(alpha=0.2),
             Conv2D(3, kernel_size=5, padding="same", activation="tanh"),
